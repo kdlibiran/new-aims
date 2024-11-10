@@ -20,20 +20,19 @@ export async function POST(request: Request) {
 
     const history = [...currentDevice.history];
     const date = new Date().toISOString();
-    
     history.push({
       type: 'maintenance',
       date,
       user: maintainedBy,
       notes: `${maintenanceType} maintenance: ${notes}`,
     });
-
+    const {_id, ...currentDeviceWithoutId} = currentDevice;
     const updatedDevice = await fetchMutation(
       api.devices.update,
       { 
         _id: deviceId,
         device: {
-          ...currentDevice,
+          ...currentDeviceWithoutId,
           status: 'maintenance',
           lastMaintenance: date,
           history: history as any,
@@ -44,6 +43,7 @@ export async function POST(request: Request) {
     
     return NextResponse.json(updatedDevice);
   } catch (error) {
+    console.error('Error setting device for maintenance:', error);
     return NextResponse.json({ error: 'Failed to set device for maintenance' }, { status: 500 });
   }
 } 

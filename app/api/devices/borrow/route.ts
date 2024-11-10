@@ -30,13 +30,14 @@ export async function POST(request: Request) {
       notes: purpose || `Borrowed until ${expectedReturnDate}`,
     });
     console.log(history)
+    const {_id, ...currentDeviceWithoutId} = currentDevice;
     // Update device with new status and history
     const updatedDevice = await fetchMutation(
       api.devices.update,
       { 
         _id: deviceId,
         device: {
-          ...currentDevice,
+          ...currentDeviceWithoutId,
           status: 'dispatched',
           assignedTo: borrowedBy,
           notes: purpose || `Borrowed until ${expectedReturnDate}`,
@@ -48,6 +49,7 @@ export async function POST(request: Request) {
     
     return NextResponse.json(updatedDevice);
   } catch (error) {
+    console.error('Error borrowing device:', error);
     return NextResponse.json({ error: 'Failed to borrow device' }, { status: 500 });
   }
 } 

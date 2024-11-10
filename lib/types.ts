@@ -1,6 +1,6 @@
 export type DeviceStatus = 'available' | 'dispatched' | 'repair' | 'maintenance';
 
-export type DeviceHistoryType = 'borrow' | 'return' | 'repair';
+export type DeviceHistoryType = 'borrow' | 'return' | 'repair' | 'maintenance';
 
 export type DeviceHistory = {
   type: DeviceHistoryType;

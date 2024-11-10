@@ -32,7 +32,7 @@ export const update = mutation({
       lastMaintenance: v.optional(v.string()),
       notes: v.optional(v.string()),
       history: v.array(v.object({
-        type: v.union(v.literal("borrow"), v.literal("return"), v.literal("repair")),
+        type: v.union(v.literal("borrow"), v.literal("return"), v.literal("repair"), v.literal("maintenance")),
         date: v.string(),
         user: v.optional(v.string()),
         notes: v.optional(v.string()),
@@ -60,9 +60,15 @@ export const remove = mutation({
 export const getById = query({
   args: { id: v.string() },
   handler: async (ctx, args) => {
-    return await ctx.db
+    const device = await ctx.db
       .query("devices")
       .filter((q) => q.eq(q.field("_id"), args.id))
       .first();
+    
+    if (!device) return null;
+    
+    // Destructure to exclude _creationTime
+    const { _creationTime, ...deviceWithoutCreationTime } = device;
+    return deviceWithoutCreationTime as Device;
   },
 });

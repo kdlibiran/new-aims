@@ -27,13 +27,13 @@ export async function POST(request: Request) {
       user: returnedBy,
       notes: notes,
     });
-
+    const {_id, ...currentDeviceWithoutId} = currentDevice;
     const updatedDevice = await fetchMutation(
       api.devices.update,
       { 
         _id: deviceId,
         device: {
-          ...currentDevice,
+          ...currentDeviceWithoutId,
           status: 'available',
           assignedTo: undefined,
           history: history as any,

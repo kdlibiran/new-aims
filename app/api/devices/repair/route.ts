@@ -5,7 +5,7 @@ import { NextResponse } from "next/server";
 
 export async function POST(request: Request) {
   const data = await request.json();
-  const { deviceId, technician, issue, estimatedCompletionDate, notes } = data;
+  const { deviceId, repairDescription, repairCost, repairedBy } = data;
   
   try {
     const currentDevice = await fetchQuery(
@@ -24,21 +24,23 @@ export async function POST(request: Request) {
     history.push({
       type: 'repair',
       date,
-      user: technician,
-      notes: notes,
+      user: repairedBy,
+      notes: repairDescription,
       repairDetails: {
-        issue: issue,
+        issue: repairDescription,
         solution: 'Pending',
-        technician: technician,
+        technician: repairedBy,
+        cost: Number(repairCost),
       }
     });
 
+    const {_id, ...currentDeviceWithoutId} = currentDevice;
     const updatedDevice = await fetchMutation(
       api.devices.update,
       { 
         _id: deviceId,
         device: {
-          ...currentDevice,
+          ...currentDeviceWithoutId,
           status: 'repair',
           history: history as any,
         }
@@ -48,6 +50,7 @@ export async function POST(request: Request) {
     
     return NextResponse.json(updatedDevice);
   } catch (error) {
+    console.error('Error repairing device:', error);
     return NextResponse.json({ error: 'Failed to set device for repair' }, { status: 500 });
   }
 } 
