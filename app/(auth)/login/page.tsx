@@ -44,7 +44,7 @@ export default function LoginPage() {
   );
 }
 
-export function LoginWithPassword() {
+function LoginWithPassword() {
   const { signIn } = useAuthActions();
   const router = useRouter();
   const [loading, setLoading] = useState<boolean>(false);
@@ -90,7 +90,7 @@ export function LoginWithPassword() {
             {loading ? "Logging in..." : "Log in"}
           </Button>
           <span className="text-center text-black">
-            Don't have an account? 
+            Don&apos;t have an account? 
             <Button
               type="button"
               variant="link"
