@@ -47,6 +47,13 @@ export function EditDeviceModal({ device }: { device: Device }) {
                     technician: formData.get('technician') as string
                 }
             })
+        } else if (status === 'maintenance') {
+            history.push({
+                type: 'maintenance',
+                date,
+                user: formData.get('maintainedBy') as string,
+                notes: `${formData.get('maintenanceType') as string} maintenance: ${formData.get('notes') as string}`,
+            })
         }
 
         try {
@@ -57,7 +64,7 @@ export function EditDeviceModal({ device }: { device: Device }) {
                 assignedTo: status === 'dispatched' ? formData.get('assignedTo') as string : undefined,
                 notes: formData.get('notes') as string,
                 history,
-                lastMaintenance: device.lastMaintenance
+                lastMaintenance: status === 'maintenance' ? new Date().toISOString() : device.lastMaintenance
             }
 
             await updateDevice({
@@ -175,6 +182,45 @@ export function EditDeviceModal({ device }: { device: Device }) {
                                     <Input 
                                         id="technician" 
                                         name="technician" 
+                                        className="col-span-3"
+                                        required
+                                    />
+                                </div>
+                            </>
+                        )}
+
+                        {status === 'maintenance' && (
+                            <>
+                                <div className="grid grid-cols-4 items-center gap-4">
+                                    <Label htmlFor="maintenanceType" className="text-right">
+                                        Maintenance Type
+                                    </Label>
+                                    <Input 
+                                        id="maintenanceType" 
+                                        name="maintenanceType" 
+                                        className="col-span-3"
+                                        required
+                                    />
+                                </div>
+                                <div className="grid grid-cols-4 items-center gap-4">
+                                    <Label htmlFor="maintenanceDate" className="text-right">
+                                        Maintenance Date
+                                    </Label>
+                                    <Input 
+                                        id="maintenanceDate" 
+                                        name="maintenanceDate" 
+                                        type="date"
+                                        className="col-span-3"
+                                        required
+                                    />
+                                </div>
+                                <div className="grid grid-cols-4 items-center gap-4">
+                                    <Label htmlFor="maintainedBy" className="text-right">
+                                        Maintained By
+                                    </Label>
+                                    <Input 
+                                        id="maintainedBy" 
+                                        name="maintainedBy" 
                                         className="col-span-3"
                                         required
                                     />
