@@ -72,3 +72,91 @@ export const getById = query({
     return deviceWithoutCreationTime as Device;
   },
 });
+
+export const getDashboardStats = query({
+  args: {},
+  handler: async (ctx) => {
+    const devices = await ctx.db.query("devices").collect();
+    
+    // Calculate status counts
+    const statuses = {
+      available: 0,
+      dispatched: 0,
+      repair: 0,
+      maintenance: 0,
+    };
+    
+    devices.forEach(device => {
+      statuses[device.status as keyof typeof statuses]++;
+    });
+
+    // Calculate most repaired devices
+    const repairCounts = new Map<string, number>();
+    devices.forEach(device => {
+      const repairs = device.history.filter(h => h?.type === 'repair').length;
+      if (repairs > 0) {
+        repairCounts.set(device.name, repairs);
+      }
+    });
+
+    const mostRepaired = Array.from(repairCounts.entries())
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 5)
+      .map(([name, count]) => ({ name, count }));
+
+    // Calculate most used devices (based on borrow history)
+    const usageCounts = devices.map(device => ({
+      name: device.name,
+      usageHours: device.history.filter(h => h?.type === 'borrow').length * 24, // Rough estimate
+      status: device.status
+    })).sort((a, b) => b.usageHours - a.usageHours).slice(0, 5);
+
+    // Get recent activity
+    const recentActivity = devices.flatMap(device => 
+      device.history
+        .filter(h => h !== null)
+        .map(h => ({
+          id: Math.random().toString(), // You might want to use a better ID strategy
+          device: device.name,
+          action: h!.type,
+          date: h!.date
+        }))
+    ).sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
+    .slice(0, 5);
+
+    // Get maintenance schedule
+    const maintenanceSchedule = devices
+      .filter(device => device.lastMaintenance)
+      .map(device => {
+        const lastMaintenance = new Date(device.lastMaintenance!);
+        const nextMaintenance = new Date(lastMaintenance);
+        nextMaintenance.setMonth(nextMaintenance.getMonth() + 3); // Assuming 3-month maintenance cycle
+        
+        const now = new Date();
+        let status: 'On Schedule' | 'Due Soon' | 'Overdue';
+        const daysUntilNext = Math.floor((nextMaintenance.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
+        
+        if (daysUntilNext < 0) status = 'Overdue';
+        else if (daysUntilNext < 14) status = 'Due Soon';
+        else status = 'On Schedule';
+
+        return {
+          device: device.name,
+          lastMaintenance: device.lastMaintenance,
+          nextMaintenance: nextMaintenance.toISOString().split('T')[0],
+          status
+        };
+      })
+      .sort((a, b) => new Date(a.nextMaintenance).getTime() - new Date(b.nextMaintenance).getTime())
+      .slice(0, 3);
+
+    return {
+      total: devices.length,
+      statuses,
+      mostRepaired,
+      mostUsed: usageCounts,
+      recentActivity,
+      maintenanceSchedule
+    };
+  },
+});

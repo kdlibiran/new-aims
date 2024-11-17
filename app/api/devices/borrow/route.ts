@@ -29,7 +29,6 @@ export async function POST(request: Request) {
       user: borrowedBy,
       notes: purpose || `Borrowed until ${expectedReturnDate}`,
     });
-    console.log(history)
     const {_id, ...currentDeviceWithoutId} = currentDevice;
     // Update device with new status and history
     const updatedDevice = await fetchMutation(
