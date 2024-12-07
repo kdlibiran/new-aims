@@ -91,10 +91,73 @@ const config = {
   		animation: {
   			'accordion-down': 'accordion-down 0.2s ease-out',
   			'accordion-up': 'accordion-up 0.2s ease-out'
-  		}
+  		},
+  		typography: {
+  			DEFAULT: {
+  				css: {
+  					maxWidth: '65ch',
+  					color: 'inherit',
+  					a: {
+  						color: 'inherit',
+  						textDecoration: 'underline',
+  						fontWeight: '500',
+  					},
+  					'[class~="lead"]': {
+  						color: 'inherit',
+  					},
+  					strong: {
+  						color: 'inherit',
+  					},
+  					'ul > li::before': {
+  						backgroundColor: 'currentColor',
+  					},
+  					hr: {
+  						borderColor: 'currentColor',
+  						opacity: 0.3,
+  					},
+  					blockquote: {
+  						color: 'inherit',
+  						borderLeftColor: 'currentColor',
+  					},
+  					h1: {
+  						color: 'inherit',
+  					},
+  					h2: {
+  						color: 'inherit',
+  					},
+  					h3: {
+  						color: 'inherit',
+  					},
+  					h4: {
+  						color: 'inherit',
+  					},
+  					code: {
+  						color: 'inherit',
+  					},
+  					'pre code': {
+  						backgroundColor: 'transparent',
+  						color: 'inherit',
+  					},
+  					pre: {
+  						backgroundColor: 'rgb(var(--muted))',
+  						color: 'inherit',
+  					},
+  					thead: {
+  						color: 'inherit',
+  						borderBottomColor: 'currentColor',
+  					},
+  					'tbody tr': {
+  						borderBottomColor: 'currentColor',
+  					},
+  				},
+  			},
+  		},
   	}
   },
-  plugins: [require("tailwindcss-animate")],
+  plugins: [
+    require('@tailwindcss/typography'),
+    require("tailwindcss-animate")
+  ],
 } satisfies Config
 
 export default config

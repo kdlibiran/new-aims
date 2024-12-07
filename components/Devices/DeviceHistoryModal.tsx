@@ -25,8 +25,14 @@ export function DeviceHistoryModal({ device }: { device: Device }) {
         switch (type) {
             case 'borrow':
                 return 'bg-blue-100 text-blue-800'
+            case 'return':
+                return 'bg-green-100 text-green-800'
             case 'repair':
-                return 'bg-yellow-100 text-yellow-800'
+                return 'bg-amber-100 text-amber-800'
+            case 'retire':
+                return 'bg-slate-100 text-slate-800'
+            case 'missing':
+                return 'bg-red-100 text-red-800'
             default:
                 return 'bg-gray-100 text-gray-800'
         }

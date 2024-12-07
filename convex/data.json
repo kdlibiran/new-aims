@@ -1,0 +1,26 @@
+{
+    "devices": {
+      "name": "The name of the device.",
+      "serialNumber": "The unique serial number of the device.",
+      "status": "The status of the device. Possible values are 'available', 'dispatched', 'repair', or 'maintenance'.",
+      "assignedTo": "The name of the person or entity the device is assigned to. (Optional)",
+      "lastMaintenance": "The date of the last maintenance in ISO 8601 format. (Optional)",
+      "notes": "Additional notes related to the device. (Optional)",
+      "history": [
+        {
+          "type": "The type of action or event. Examples: 'borrow', 'return', 'repair', 'maintenance'.",
+          "date": "The date of the action or event in string format (ISO 8601).",
+          "user": "The name of the user responsible for the action/event. (Optional)",
+          "notes": "Notes specific to this history event. (Optional)",
+          "repairDetails": {
+            "issue": "Description of the issue being addressed during the repair.",
+            "solution": "The solution applied to fix the issue.",
+            "cost": "The cost associated with the repair. (Optional)",
+            "technician": "The name of the technician who performed the repair. (Optional)"
+          },
+          "null": "Represents no recorded history for events or repairs."
+        }
+      ]
+    }
+}
+  

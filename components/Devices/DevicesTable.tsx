@@ -1,4 +1,3 @@
-import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import {
@@ -10,54 +9,67 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { MoreHorizontal, Edit, Trash, History } from 'lucide-react'
-import { DeviceStatus, Device } from '@/lib/types'
+import { MoreHorizontal, FileDown, Upload, Plus } from 'lucide-react'
+import { Device } from '@/lib/types'
 import { QRCodeModal } from './QRCodeModal'
 import { AddDeviceModal } from './AddDeviceModal'
 import { EditDeviceModal } from './EditDeviceModal'
 import { DeviceHistoryModal } from "./DeviceHistoryModal"
 import { DeleteDeviceModal } from "./DeleteDeviceModal"
-
-function StatusBadge({ status }: { status: DeviceStatus }) {
-  const styles = {
-    available: 'bg-green-100 text-green-800',
-    dispatched: 'bg-blue-100 text-blue-800',
-    repair: 'bg-yellow-100 text-yellow-800',
-    maintenance: 'bg-purple-100 text-purple-800',
-  }
-  return <Badge className={styles[status]}>{status}</Badge>
-}
+import { BulkImportModal } from "./BulkImportModal"
+import { GenerateReportModal } from "./GenerateReportModal"
+import { StatusBadge } from "@/components/ui/status-badge"
 
 export default function DevicesTable({ devices }: { devices: Device[] }) {
+  const formatDate = (date: string | undefined) => {
+    if (!date) return 'N/A'
+    return new Date(date).toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric'
+    })
+  }
+
   return (
-    <Card className="w-full max-w-4xl mx-auto">
+    <Card className="w-full max-w-5xl mx-auto">
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-        <CardTitle className="text-2xl font-bold">Device Inventory</CardTitle>
-        <AddDeviceModal />
+        <div>
+          <CardTitle className="text-2xl font-bold">Device Inventory</CardTitle>
+          <p className="text-sm text-muted-foreground mt-1">
+            Manage and track all your devices
+          </p>
+        </div>
+        <div className="flex items-center gap-2">
+          <GenerateReportModal />
+          <BulkImportModal />
+          <AddDeviceModal />
+
+        </div>
       </CardHeader>
       <CardContent>
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead className="w-[100px]">Serial No.</TableHead>
-              <TableHead>Name</TableHead>
-              <TableHead>Status</TableHead>
-              <TableHead>Assigned To</TableHead>
-              <TableHead>Last Maintenance</TableHead>
-              <TableHead className="text-right">Actions</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {devices.map((device) => (
-              <TableRow key={device._id}>
-                <TableCell className="font-medium">{device.serialNumber}</TableCell>
-                <TableCell>{device.name}</TableCell>
-                <TableCell>
-                  <StatusBadge status={device.status} />
-                </TableCell>
-                <TableCell>{device.assignedTo || 'N/A'}</TableCell>
-                <TableCell>{device.lastMaintenance ? new Date(device.lastMaintenance).toLocaleDateString() : 'N/A'}</TableCell>
-                <TableCell className="text-right">
+        <div className="rounded-md border">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead className="w-[100px]">Serial No.</TableHead>
+                <TableHead>Name</TableHead>
+                <TableHead>Status</TableHead>
+                <TableHead>Assigned To</TableHead>
+                <TableHead>Last Maintenance</TableHead>
+                <TableHead className="text-right">Actions</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {devices.map((device) => (
+                <TableRow key={device._id}>
+                  <TableCell className="font-medium">{device.serialNumber}</TableCell>
+                  <TableCell>{device.name}</TableCell>
+                  <TableCell>
+                    <StatusBadge status={device.status} />
+                  </TableCell>
+                  <TableCell>{device.assignedTo}</TableCell>
+                  <TableCell>{formatDate(device.lastMaintenance)}</TableCell>
+                  <TableCell className="text-right">
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
                         <Button variant="ghost" className="h-8 w-8 p-0">
@@ -65,19 +77,21 @@ export default function DevicesTable({ devices }: { devices: Device[] }) {
                           <MoreHorizontal className="h-4 w-4" />
                         </Button>
                       </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end" className="bg-background">
+                      <DropdownMenuContent align="end" className="bg-white ">
                         <DropdownMenuLabel>Actions</DropdownMenuLabel>
                         <EditDeviceModal device={device} />
                         <QRCodeModal device={device}/>
                         <DeviceHistoryModal device={device} />
+                        <DropdownMenuSeparator />
                         <DeleteDeviceModal device={device} />
                       </DropdownMenuContent>
                     </DropdownMenu>
-                </TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </div>
       </CardContent>
     </Card>
   )

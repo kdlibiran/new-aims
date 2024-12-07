@@ -12,12 +12,21 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Progress } from '@/components/ui/progress'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
+import DeviceAssistantChat from '@/components/DeviceAssistantChat'
 
-const statusColors = {
-  available: 'bg-green-500',
-  dispatched: 'bg-blue-500',
-  repair: 'bg-red-500',
-  maintenance: 'bg-yellow-500',
+const getStatusColor = (status: string) => {
+ switch (status) {
+    case 'available':
+      return '#22c55e';  // green
+    case 'dispatched':
+      return '#3b82f6';  // blue
+    case 'repair':
+      return '#ef4444';  // red
+    case 'retired':
+      return '#eab308';  // yellow
+    default:
+      return '#6b7280';  // gray
+  }
 }
 
 export default function DashboardPage() {
@@ -120,11 +129,7 @@ export default function DashboardPage() {
                     {Object.entries(dashboardData.statuses).map(([key], index) => (
                       <Cell 
                         key={`cell-${index}`} 
-                        fill={statusColors[key as keyof typeof statusColors]
-                          .replace('bg-green-500', '#22c55e')
-                          .replace('bg-blue-500', '#3b82f6')
-                          .replace('bg-red-500', '#ef4444')
-                          .replace('bg-yellow-500', '#eab308')}
+                        fill={getStatusColor(key)}
                       />
                     ))}
                   </Pie>
@@ -232,7 +237,7 @@ export default function DashboardPage() {
                     <TableCell>{formatDate(maintenance.lastMaintenance)}</TableCell>
                     <TableCell>{formatDate(maintenance.nextMaintenance)}</TableCell>
                     <TableCell>
-                      <Badge variant="outline" className={`${statusColors[maintenance.status as keyof typeof statusColors]}`}>
+                      <Badge variant="outline" className={`${getStatusColor(maintenance.status)}`}>
                         {maintenance.status}
                       </Badge>
                     </TableCell>
@@ -242,6 +247,10 @@ export default function DashboardPage() {
             </Table>
           </CardContent>
         </Card>
+
+        <div className="fixed bottom-8 right-8 w-[400px]">
+          <DeviceAssistantChat />
+        </div>
       </div>
     </div>
   )

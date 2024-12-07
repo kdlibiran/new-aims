@@ -17,7 +17,8 @@ export default defineSchema({
       v.literal("available"),
       v.literal("dispatched"),
       v.literal("repair"),
-      v.literal("maintenance")
+      v.literal("retired"),
+      v.literal("missing")
     ),
     assignedTo: v.optional(v.string()),
     lastMaintenance: v.optional(v.string()), // ISO string
@@ -34,5 +35,5 @@ export default defineSchema({
         technician: v.optional(v.string()),
       })),
     }), v.null())),
-  }),
+  })
 });

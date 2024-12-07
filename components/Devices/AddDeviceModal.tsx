@@ -24,7 +24,8 @@ export function AddDeviceModal() {
           name: formData.get('name') as string,
           serialNumber: formData.get('serialNumber') as string,
           status: formData.get('status') as DeviceStatus,
-          history: [],
+          assignedTo: formData.get('status') === 'dispatched' ? 'Unassigned' : 'Admin',
+          history: []
         }
       })
       formRef.current?.reset()
@@ -34,7 +35,7 @@ export function AddDeviceModal() {
     return (
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogTrigger asChild>
-          <Button>
+          <Button variant="outline">
             <Plus className="mr-2 h-4 w-4" />
             Add Device
           </Button>
@@ -70,8 +71,9 @@ export function AddDeviceModal() {
                 <SelectContent className="col-span-3 bg-background">
                   <SelectItem value="available">Available</SelectItem>
                   <SelectItem value="dispatched">Dispatched</SelectItem>
-                  <SelectItem value="repair">Repair</SelectItem>
-                  <SelectItem value="maintenance">Maintenance</SelectItem>
+                  <SelectItem value="repair">In Repair</SelectItem>
+                  <SelectItem value="retired">Retired</SelectItem>
+                  <SelectItem value="missing">Missing</SelectItem>
                 </SelectContent>
               </Select>
             </div>

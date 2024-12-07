@@ -5,7 +5,7 @@ import { NextResponse } from "next/server";
 
 export async function POST(request: Request) {
   const data = await request.json();
-  const { deviceId, maintainedBy, maintenanceType, notes } = data;
+  const { deviceId, retiredBy, reason, value, recipient, notes } = data;
   
   try {
     const currentDevice = await fetchQuery(
@@ -20,12 +20,19 @@ export async function POST(request: Request) {
 
     const history = [...currentDevice.history];
     const date = new Date().toISOString();
+    
     history.push({
-      type: 'maintenance',
+      type: 'retire',
       date,
-      user: maintainedBy,
-      notes: `${maintenanceType} maintenance: ${notes}`,
+      user: retiredBy,
+      notes,
+      retireDetails: {
+        reason,
+        value: reason === 'sold' ? value : undefined,
+        recipient,
+      }
     });
+
     const {_id, ...currentDeviceWithoutId} = currentDevice;
     const updatedDevice = await fetchMutation(
       api.devices.update,
@@ -33,8 +40,8 @@ export async function POST(request: Request) {
         _id: deviceId,
         device: {
           ...currentDeviceWithoutId,
-          status: 'maintenance',
-          lastMaintenance: date,
+          status: 'retired',
+          assignedTo: 'Admin',
           history: history as any,
         }
       },
@@ -43,7 +50,7 @@ export async function POST(request: Request) {
     
     return NextResponse.json(updatedDevice);
   } catch (error) {
-    console.error('Error setting device for maintenance:', error);
-    return NextResponse.json({ error: 'Failed to set device for maintenance' }, { status: 500 });
+    console.error('Error retiring device:', error);
+    return NextResponse.json({ error: 'Failed to retire device' }, { status: 500 });
   }
 } 

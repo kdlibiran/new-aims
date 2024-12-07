@@ -23,53 +23,55 @@ export function EditDeviceModal({ device }: { device: Device }) {
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault()
         const formData = new FormData(e.currentTarget)
-        
-        const history = [...device.history]
         const date = new Date().toISOString()
+        const history = [...device.history]
 
-        if (status === 'dispatched') {
-            history.push({
-                type: 'borrow',
-                date,
-                user: formData.get('assignedTo') as string,
-                notes: formData.get('notes') as string
-            })
-        } else if (status === 'repair') {
-            history.push({
-                type: 'repair',
-                date,
-                user: formData.get('technician') as string,
-                notes: formData.get('notes') as string,
-                repairDetails: {
-                    issue: formData.get('issue') as string,
-                    solution: formData.get('solution') as string,
-                    cost: Number(formData.get('cost')),
-                    technician: formData.get('technician') as string
-                }
-            })
-        } else if (status === 'maintenance') {
-            history.push({
-                type: 'maintenance',
-                date,
-                user: formData.get('maintainedBy') as string,
-                notes: `${formData.get('maintenanceType') as string} maintenance: ${formData.get('notes') as string}`,
-            })
+        // Add history entry based on status change
+        if (status !== device.status) {
+            if (status === 'repair') {
+                history.push({
+                    type: 'repair',
+                    date,
+                    user: formData.get('technician') as string,
+                    notes: formData.get('notes') as string,
+                    repairDetails: {
+                        issue: formData.get('issue') as string,
+                        solution: formData.get('solution') as string,
+                        cost: Number(formData.get('cost')),
+                        technician: formData.get('technician') as string,
+                    }
+                })
+            } else if (status === 'retired') {
+                history.push({
+                    type: 'retire',
+                    date,
+                    user: formData.get('retiredBy') as string,
+                    notes: formData.get('notes') as string,
+                    retireDetails: {
+                        reason: formData.get('retireReason') as 'donated' | 'sold',
+                        value: formData.get('value') ? Number(formData.get('value')) : undefined,
+                        recipient: formData.get('recipient') as string,
+                    }
+                })
+            } else if (status === 'missing') {
+                history.push({
+                    type: 'missing',
+                    date,
+                    user: formData.get('reportedBy') as string,
+                    notes: formData.get('notes') as string,
+                })
+            }
         }
 
         try {
-            const updatedDevice = {
-                name: device.name,
-                serialNumber: device.serialNumber,
-                status,
-                assignedTo: status === 'dispatched' ? formData.get('assignedTo') as string : undefined,
-                notes: formData.get('notes') as string,
-                history,
-                lastMaintenance: status === 'maintenance' ? new Date().toISOString() : device.lastMaintenance
-            }
-
             await updateDevice({
-                _id: device._id as Id<"devices">,
-                device: updatedDevice as any
+                _id: device._id,
+                device: {
+                    status,
+                    assignedTo: status === 'dispatched' ? (formData.get('assignedTo') as string) : 'Admin',
+                    notes: formData.get('notes') as string,
+                    history: history as any,
+                }
             })
             toast({
                 title: "Success",
@@ -109,18 +111,18 @@ export function EditDeviceModal({ device }: { device: Device }) {
                                 Status
                             </Label>
                             <Select 
-                                name="status" 
                                 value={status} 
                                 onValueChange={(value: DeviceStatus) => setStatus(value)}
                             >
-                                <SelectTrigger className="col-span-3">
+                                <SelectTrigger className="col-span-3 bg-background">
                                     <SelectValue placeholder="Select status" />
                                 </SelectTrigger>
                                 <SelectContent className="bg-background">
                                     <SelectItem value="available">Available</SelectItem>
                                     <SelectItem value="dispatched">Dispatched</SelectItem>
-                                    <SelectItem value="repair">Repair</SelectItem>
-                                    <SelectItem value="maintenance">Maintenance</SelectItem>
+                                    <SelectItem value="repair">In Repair</SelectItem>
+                                    <SelectItem value="retired">Retired</SelectItem>
+                                    <SelectItem value="missing">Missing</SelectItem>
                                 </SelectContent>
                             </Select>
                         </div>
@@ -171,6 +173,8 @@ export function EditDeviceModal({ device }: { device: Device }) {
                                         id="cost" 
                                         name="cost" 
                                         type="number"
+                                        step="0.01"
+                                        min="0"
                                         className="col-span-3"
                                         required
                                     />
@@ -189,43 +193,72 @@ export function EditDeviceModal({ device }: { device: Device }) {
                             </>
                         )}
 
-                        {status === 'maintenance' && (
+                        {status === 'retired' && (
                             <>
                                 <div className="grid grid-cols-4 items-center gap-4">
-                                    <Label htmlFor="maintenanceType" className="text-right">
-                                        Maintenance Type
+                                    <Label htmlFor="retiredBy" className="text-right">
+                                        Retired By
                                     </Label>
                                     <Input 
-                                        id="maintenanceType" 
-                                        name="maintenanceType" 
+                                        id="retiredBy" 
+                                        name="retiredBy" 
                                         className="col-span-3"
                                         required
                                     />
                                 </div>
                                 <div className="grid grid-cols-4 items-center gap-4">
-                                    <Label htmlFor="maintenanceDate" className="text-right">
-                                        Maintenance Date
+                                    <Label htmlFor="retireReason" className="text-right">
+                                        Reason
+                                    </Label>
+                                    <Select name="retireReason" defaultValue="donated">
+                                        <SelectTrigger className="col-span-3 bg-background">
+                                            <SelectValue placeholder="Select reason" />
+                                        </SelectTrigger>
+                                        <SelectContent className="bg-background">
+                                            <SelectItem value="donated">Donated</SelectItem>
+                                            <SelectItem value="sold">Sold</SelectItem>
+                                        </SelectContent>
+                                    </Select>
+                                </div>
+                                <div className="grid grid-cols-4 items-center gap-4">
+                                    <Label htmlFor="value" className="text-right">
+                                        Value
                                     </Label>
                                     <Input 
-                                        id="maintenanceDate" 
-                                        name="maintenanceDate" 
-                                        type="date"
+                                        id="value" 
+                                        name="value" 
+                                        type="number"
+                                        step="0.01"
+                                        min="0"
                                         className="col-span-3"
-                                        required
                                     />
                                 </div>
                                 <div className="grid grid-cols-4 items-center gap-4">
-                                    <Label htmlFor="maintainedBy" className="text-right">
-                                        Maintained By
+                                    <Label htmlFor="recipient" className="text-right">
+                                        Recipient
                                     </Label>
                                     <Input 
-                                        id="maintainedBy" 
-                                        name="maintainedBy" 
+                                        id="recipient" 
+                                        name="recipient" 
                                         className="col-span-3"
                                         required
                                     />
                                 </div>
                             </>
+                        )}
+
+                        {status === 'missing' && (
+                            <div className="grid grid-cols-4 items-center gap-4">
+                                <Label htmlFor="reportedBy" className="text-right">
+                                    Reported By
+                                </Label>
+                                <Input 
+                                    id="reportedBy" 
+                                    name="reportedBy" 
+                                    className="col-span-3"
+                                    required
+                                />
+                            </div>
                         )}
 
                         <div className="grid grid-cols-4 items-center gap-4">
@@ -236,10 +269,11 @@ export function EditDeviceModal({ device }: { device: Device }) {
                                 id="notes" 
                                 name="notes" 
                                 className="col-span-3"
+                                required
                             />
                         </div>
 
-                        <Button type="submit" className="mt-4 border">
+                        <Button type="submit" className="mt-4">
                             Save Changes
                         </Button>
                     </form>
