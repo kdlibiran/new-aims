@@ -90,7 +90,7 @@ export default function DeviceAssistantChat() {
           <div className="flex-1 p-4 overflow-y-auto space-y-4">
             {chatHistory.length === 0 && (
               <div className="text-center text-foreground text-sm py-8">
-                <p>👋 Hi! I'm your device assistant.</p>
+                <p>👋 Hi! I&apos;m your device assistant.</p>
                 <p>Ask me anything about devices, maintenance, or repairs.</p>
               </div>
             )}
