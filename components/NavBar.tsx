@@ -1,7 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 
-export default async function NavBar({
+export default function NavBar({
   hasLogin,
   hasFullName,
   hasLinks,
