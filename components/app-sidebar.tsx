@@ -1,4 +1,13 @@
-import { LayoutDashboard, Laptop, Plus, Eye, Pencil, Handshake, Wrench, ChevronRight } from "lucide-react"
+import {
+  LayoutDashboard,
+  Laptop,
+  Plus,
+  Eye,
+  Pencil,
+  Handshake,
+  Wrench,
+  ChevronRight,
+} from "lucide-react";
 import {
   Sidebar,
   SidebarContent,
@@ -9,16 +18,16 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
-} from "@/components/ui/sidebar"
+} from "@/components/ui/sidebar";
 import {
-    Collapsible,
-    CollapsibleContent,
-    CollapsibleTrigger,
-  } from "@/components/ui/collapsible"
-import { UserMenu } from "@/components/UserMenu"
-import { api } from "@/convex/_generated/api"
-import { fetchQuery } from "convex/nextjs"
-import { convexAuthNextjsToken } from "@convex-dev/auth/nextjs/server"
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "@/components/ui/collapsible";
+import { UserMenu } from "@/components/UserMenu";
+import { api } from "@/convex/_generated/api";
+import { fetchQuery } from "convex/nextjs";
+import { convexAuthNextjsToken } from "@convex-dev/auth/nextjs/server";
 
 const items = [
   {
@@ -55,80 +64,70 @@ const items = [
         url: "/devices/repair",
         icon: Wrench,
       },
-      {
-        title: "Maintain Device",
-        url: "/devices/maintain",
-        icon: Wrench,
-      }
     ],
-  }
-]
-
-
+  },
+];
 
 export async function AppSidebar() {
-    const viewer = await fetchQuery(
-        api.users.viewer,
-        {},
-        { token: convexAuthNextjsToken() },
-    );
-    
-    return (
-        <Sidebar>
-            <SidebarContent className="gap-0">
-                <SidebarGroup>
-                    <SidebarGroupLabel>AIMS</SidebarGroupLabel>
-                    <SidebarGroupContent>
-                        <SidebarMenu>
-                            {items.map((item) => 
-                                item.children ? (
-                                    <Collapsible
-                                        key={item.title}
-                                        className="group/collapsible"
-                                    >
-                                        <SidebarGroupLabel
-                                            asChild
-                                            className="group/label text-sm hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
-                                        >
-                                            <CollapsibleTrigger>
-                                                <item.icon />
-                                                {item.title}{" "}
-                                                <ChevronRight className="ml-auto transition-transform group-data-[state=open]/collapsible:rotate-90" />
-                                            </CollapsibleTrigger>
-                                        </SidebarGroupLabel>
-                                        <CollapsibleContent>
-                                            <SidebarMenu>
-                                                {item.children.map((child) => (
-                                                    <SidebarMenuItem key={child.title}>
-                                                        <SidebarMenuButton asChild>
-                                                            <a href={child.url}>
-                                                                <child.icon />
-                                                                <span>{child.title}</span>
-                                                            </a>
-                                                        </SidebarMenuButton>
-                                                    </SidebarMenuItem>
-                                                ))}
-                                            </SidebarMenu>
-                                        </CollapsibleContent>
-                                    </Collapsible>
-                                ) : (
-                                    <SidebarMenuItem key={item.title}>
-                                        <SidebarMenuButton asChild>
-                                            <a href={item.url}>
-                                                <item.icon />
-                                                <span>{item.title}</span>
-                                            </a>
-                                        </SidebarMenuButton>
-                                    </SidebarMenuItem>
-                                )
-                            )}
-                        </SidebarMenu>
-                    </SidebarGroupContent>
-                </SidebarGroup>
-            </SidebarContent>
-            <SidebarFooter className="border-t border-foreground/10 flex-row justify-center items-center">
-                <UserMenu>{viewer.email}</UserMenu>
-            </SidebarFooter>
-        </Sidebar>
-    )
+  const viewer = await fetchQuery(
+    api.users.viewer,
+    {},
+    { token: convexAuthNextjsToken() },
+  );
+
+  return (
+    <Sidebar>
+      <SidebarContent className="gap-0">
+        <SidebarGroup>
+          <SidebarGroupLabel>AIMS</SidebarGroupLabel>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              {items.map((item) =>
+                item.children ? (
+                  <Collapsible key={item.title} className="group/collapsible">
+                    <SidebarGroupLabel
+                      asChild
+                      className="group/label text-sm hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
+                    >
+                      <CollapsibleTrigger>
+                        <item.icon />
+                        {item.title}{" "}
+                        <ChevronRight className="ml-auto transition-transform group-data-[state=open]/collapsible:rotate-90" />
+                      </CollapsibleTrigger>
+                    </SidebarGroupLabel>
+                    <CollapsibleContent>
+                      <SidebarMenu>
+                        {item.children.map((child) => (
+                          <SidebarMenuItem key={child.title}>
+                            <SidebarMenuButton asChild>
+                              <a href={child.url}>
+                                <child.icon />
+                                <span>{child.title}</span>
+                              </a>
+                            </SidebarMenuButton>
+                          </SidebarMenuItem>
+                        ))}
+                      </SidebarMenu>
+                    </CollapsibleContent>
+                  </Collapsible>
+                ) : (
+                  <SidebarMenuItem key={item.title}>
+                    <SidebarMenuButton asChild>
+                      <a href={item.url}>
+                        <item.icon />
+                        <span>{item.title}</span>
+                      </a>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                ),
+              )}
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+      </SidebarContent>
+      <SidebarFooter className="border-t border-foreground/10 flex-row justify-center items-center">
+        <UserMenu>{viewer.email}</UserMenu>
+      </SidebarFooter>
+    </Sidebar>
+  );
 }
